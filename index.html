@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Corações Animados</title>
+<style>
+  body { margin: 0; overflow: hidden; background: black; }
+  canvas { display: block; }
+  #text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-family: Arial, sans-serif;
+    font-size: 24px;
+    font-weight: bold;
+    text-align: center;
+    pointer-events: none;
+  }
+</style>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+<div id="text">Te amo fiota, fala com o pai fazenofavor</div>
+
+<script>
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+const centerX = canvas.width / 2;
+const centerY = canvas.height / 2;
+
+// Corações menores
+let hearts = [];
+
+// Função para desenhar um coração
+function drawHeart(x, y, size, color) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.beginPath();
+  ctx.moveTo(0, 0);
+  ctx.fillStyle = color;
+  ctx.moveTo(0, 0);
+  ctx.bezierCurveTo(0, -size/2, -size, -size/2, -size, 0);
+  ctx.bezierCurveTo(-size, size/2, 0, size*0.75, 0, size);
+  ctx.bezierCurveTo(0, size*0.75, size, size/2, size, 0);
+  ctx.bezierCurveTo(size, -size/2, 0, -size/2, 0, 0);
+  ctx.fill();
+  ctx.restore();
+}
+
+// Função para criar coração menor
+function createHeart(x, y) {
+  hearts.push({
+    x: x,
+    y: y,
+    size: Math.random() * 20 + 10,
+    color: ['pink','hotpink','lightcoral','red'][Math.floor(Math.random()*4)],
+    speed: Math.random() * 2 + 1,
+    life: 0
+  });
+}
+
+// Clique do mouse cria coração
+canvas.addEventListener('click', e => {
+  createHeart(e.clientX, e.clientY);
+});
+
+// Função de animação
+let mainSize = 40;
+let grow = true;
+function animate() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // Coração principal pulsando
+  if(grow) mainSize += 0.5;
+  else mainSize -= 0.5;
+  if(mainSize > 50) grow = false;
+  if(mainSize < 30) grow = true;
+  drawHeart(centerX, centerY, mainSize, ['pink','hotpink','lightcoral','red'][Math.floor(Math.random()*4)]);
+
+  // Corações menores
+  for(let i = hearts.length-1; i >=0; i--) {
+    let h = hearts[i];
+    drawHeart(h.x, h.y, h.size + Math.sin(h.life*0.3)*2, h.color);
+    h.y -= h.speed;
+    h.life++;
+    if(h.life > 50) hearts.splice(i,1);
+  }
+
+  requestAnimationFrame(animate);
+}
+
+// Começa animação
+animate();
+</script>
+</body>
+</html>
